@@ -8,8 +8,9 @@ import cucumber.api.junit.Cucumber;
 @RunWith(Cucumber.class)
 @CucumberOptions(
 				features={"features/UltimateQALanding.feature"},
-				glue={"com.ust.gluecode"},
-				tags= {"~@test"})
+				glue={"com.ust.gluecode"}
+//				tags= {"@test"}
+				)
 
 public class TestRunner {
 }
