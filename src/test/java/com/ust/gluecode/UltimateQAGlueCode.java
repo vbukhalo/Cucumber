@@ -49,7 +49,7 @@ public class UltimateQAGlueCode {
 
 	@Then("^I am redirected to the Selenium resouces page$")
 	public void i_am_redirected_to_the_Selenium_resouces_page() throws Throwable {
-	    assertEquals("Best Resources to Learn Selenium WebDriver in 2018 - Ultimate QA", driver.getTitle());
+	    assertEquals("marketingteam - Ultimate QA", driver.getTitle());
 	    assertEquals("https://www.ultimateqa.com/best-selenium-webdriver-resources/", driver.getCurrentUrl());
 	}
 	
