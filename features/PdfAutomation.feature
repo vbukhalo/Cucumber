@@ -16,3 +16,4 @@ Feature: Testing PDF content
 		Given I am on the prince xml page
 		When I click the dictionary pdf
 		Then I should see fonts by monokrom
+		And I should see formatting by prince

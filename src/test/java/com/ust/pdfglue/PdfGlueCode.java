@@ -2,12 +2,17 @@ package com.ust.pdfglue;
 
 import static org.junit.Assert.assertEquals;
 
+import java.awt.Rectangle;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.net.URL;
 
 import org.apache.pdfbox.io.RandomAccessBufferedFileInputStream;
 import org.apache.pdfbox.pdfparser.PDFParser;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.text.PDFTextStripper;
+import org.apache.pdfbox.text.PDFTextStripperByArea;
 import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -61,7 +66,7 @@ public class PdfGlueCode {
 
 	@Then("^I see the word cutaneous on the first page$")
 	public void i_see_the_word_cutaneous_on_the_first_page() throws Throwable {		
-		boolean flag = pdfString(this.driver, 1, 1, "cutaneous");
+		boolean flag = pdfString(1, 1, "cutaneous");
 	    
 	    Assert.assertTrue(flag);
 	}
@@ -77,14 +82,20 @@ public class PdfGlueCode {
 	}
 
 	@Then("^I should see fonts by monokrom$")
-	public void i_should_see_fonts_by_monokrom() throws Throwable {
-		
-		boolean flag = pdfString(this.driver, 1, 1, "Fonts by Monokrom");
+	public void i_should_see_fonts_by_monokrom() throws Throwable {		
+		boolean flag = pdfString(1, 1, "Fonts by Monokrom");
 		
 		Assert.assertTrue(flag);
 	}
 	
-	private boolean pdfString(WebDriver driver, int start, int end, String phrase) {
+	@Then("^I should see formatting by prince$")
+	public void i_should_see_formatting_by_prince() throws Throwable {		
+		boolean flag = pdfStringByLocation(0, "Formatting by Prince", 10, 325, 600, 140);
+		
+		Assert.assertTrue(flag);
+	}
+	
+	private boolean pdfString(int start, int end, String phrase) {
 		boolean phraseFound = false;
 		
 		try {
@@ -104,8 +115,36 @@ public class PdfGlueCode {
 		}
 		catch(IOException e) {
 			e.printStackTrace();
-		}	
+		}			
+		return phraseFound;
+	}
+	
+	private boolean pdfStringByLocation(int page, String phrase, int x, int y, int width, int height)  {
+		boolean phraseFound = false;
 		
+		try {
+			URL url = new URL(driver.getCurrentUrl());
+		    BufferedInputStream pdf = new BufferedInputStream(url.openStream());
+		    PDDocument document = PDDocument.load(pdf);
+		    
+		    PDFTextStripperByArea stripper = new PDFTextStripperByArea();
+		    stripper.setSortByPosition(true);
+		    Rectangle rect = new Rectangle(x, y, width, height);
+		    stripper.addRegion("target", rect);
+		    PDPage firstPage = document.getPage(page);
+		    stripper.extractRegions(firstPage);
+		    String extractedText = stripper.getTextForRegion("target").trim();
+		    
+		    System.out.println("Text in the area " + rect);
+		    System.out.println(extractedText);
+		    
+		    if(extractedText.equals(phrase)) {
+		    	phraseFound = true;
+		    }
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}				
 		return phraseFound;
 	}
 }
