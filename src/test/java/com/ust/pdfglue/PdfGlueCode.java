@@ -4,8 +4,10 @@ import static org.junit.Assert.assertEquals;
 
 import java.awt.Rectangle;
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
 
 import org.apache.pdfbox.io.RandomAccessBufferedFileInputStream;
 import org.apache.pdfbox.pdfparser.PDFParser;
@@ -17,6 +19,7 @@ import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
@@ -31,8 +34,16 @@ public class PdfGlueCode {
 	@Before
 	public void setup() {
 		System.setProperty("webdriver.chrome.driver", "Drivers/chromedriver.exe");
-		driver = new ChromeDriver();
+
+		HashMap<String, Object> chromePrefs = new HashMap<String, Object>();
+		chromePrefs.put("plugins.always_open_pdf_externally", true);
+		ChromeOptions options = new ChromeOptions();
+		options.setExperimentalOption("prefs", chromePrefs);
+
+		driver = new ChromeDriver(options);
 		driver.get("https://www.princexml.com/samples/");
+		
+		
 		
 	}
 	
@@ -61,12 +72,13 @@ public class PdfGlueCode {
 	@When("^I am on the textbook pdf$")
 	public void i_am_on_the_textbook_pdf() throws Throwable {
 		driver.findElement(By.xpath("//*[@id=\"textbook\"]/p[2]/a[2]")).click();
-		assertEquals("http://css4.pub/2015/textbook/somatosensory.pdf", driver.getCurrentUrl());		
+		Thread.sleep(3000);
+//		assertEquals("http://css4.pub/2015/textbook/somatosensory.pdf", driver.getCurrentUrl());		
 	}
 
 	@Then("^I see the word cutaneous on the first page$")
 	public void i_see_the_word_cutaneous_on_the_first_page() throws Throwable {		
-		boolean flag = pdfString(1, 1, "cutaneous");
+		boolean flag = pdfString(1, 1, "cutaneous", "C:\\Users\\Vlad\\Downloads\\somatosensory.pdf");
 	    
 	    Assert.assertTrue(flag);
 	}
@@ -83,7 +95,7 @@ public class PdfGlueCode {
 
 	@Then("^I should see fonts by monokrom$")
 	public void i_should_see_fonts_by_monokrom() throws Throwable {		
-		boolean flag = pdfString(1, 1, "Fonts by Monokrom");
+		boolean flag = pdfString(1, 1, "Fonts by Monokrom","");
 		
 		Assert.assertTrue(flag);
 	}
@@ -95,17 +107,25 @@ public class PdfGlueCode {
 		Assert.assertTrue(flag);
 	}
 	
-	private boolean pdfString(int start, int end, String phrase) {
+	private boolean pdfString(int start, int end, String phrase, String path) {
 		boolean phraseFound = false;
+		RandomAccessBufferedFileInputStream fis;
 		
 		try {
 			PDFTextStripper stripper = new PDFTextStripper();
 		    stripper.setStartPage(start);
 		    stripper.setEndPage(end);
 		    
-		    URL url = new URL(driver.getCurrentUrl());
-		    RandomAccessBufferedFileInputStream file = new RandomAccessBufferedFileInputStream(url.openStream());
-		    PDFParser testPDF = new PDFParser(file);
+		    if(path.equals("")) {
+		    	URL url = new URL(driver.getCurrentUrl());
+		    	fis = new RandomAccessBufferedFileInputStream(url.openStream());
+		    }
+		    else {
+		    	File file = new File(path);	
+		    	fis = new RandomAccessBufferedFileInputStream(file);
+		    } 
+		    
+		    PDFParser testPDF = new PDFParser(fis);
 		    testPDF.parse();
 		    String text = stripper.getText(testPDF.getPDDocument());
 		    

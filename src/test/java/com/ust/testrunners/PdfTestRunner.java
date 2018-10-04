@@ -9,7 +9,7 @@ import cucumber.api.junit.Cucumber;
 @CucumberOptions(
 				features= {"features/PdfAutomation.feature"},
 				glue= {"com.ust.pdfglue"},
-				tags= {"@test"})
+				tags= {"@local"})
 
 public class PdfTestRunner {
 

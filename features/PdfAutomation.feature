@@ -6,7 +6,7 @@ Feature: Testing PDF content
   	When I click the textbook pdf link
   	Then The pdf file is displayed in the window
 
-
+	@local
 	Scenario: The textbook pdf contains the work cutaneous
 		When I am on the textbook pdf
 		Then I see the word cutaneous on the first page
